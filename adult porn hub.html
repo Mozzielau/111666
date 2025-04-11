@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Adult Content Hub</title>
+    <style>
+        body {
+            background: #000;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* 初始警告页 */
+       .warning-page {
+            text-align: center;
+            margin-top: 30vh;
+            cursor: pointer;
+            animation: glitch 1s infinite;
+        }
+
+       .warning-text {
+            font-size: 2.5em;
+            color: #ff0000;
+            text-shadow: 0 0 15px #ff0000;
+            animation: shake 0.5s infinite;
+        }
+
+        /* 年龄验证页 */
+       .age-check {
+            display: none;
+            text-align: center;
+            margin-top: 20vh;
+        }
+
+       .age-title {
+            font-size: 2em;
+            color: #ff00ff;
+            text-shadow: 0 0 15px #ff00ff;
+            margin-bottom: 50px;
+        }
+
+       .age-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+       .age-btn {
+            background: none;
+            border: 3px solid;
+            padding: 15px 40px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 50px;
+            width: 80%;
+            max-width: 500px;
+        }
+
+       .age-btn:hover {
+            transform: scale(1.05) rotate(3deg);
+        }
+
+        /* 分类和食谱页面 */
+       .category-grid,
+       .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+       .category-item {
+            height: 300px;
+            border: 3px solid;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+       .category-item:hover {
+            transform: scale(1.05);
+        }
+
+        #domestic {
+            border-color: #ff4444;
+        }
+
+        #japanKorea {
+            border-color: #44ff44;
+        }
+
+        #europeAmerica {
+            border-color: #4444ff;
+        }
+
+        #exotic {
+            border-color: #ff44ff;
+        }
+
+       .category-label {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 30px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+        }
+
+       .recipe-card {
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+       .recipe-card:hover {
+            transform: scale(1.03);
+        }
+
+       .recipe-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+       .nav-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #ff00ff;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            cursor: pointer;
+            border-radius: 20px;
+            z-index: 1000;
+        }
+
+       .recipe-title {
+            color: #ff00ff !important;
+            font-size: 1.8em;
+            display: block;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #ff00ff;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: skew(0deg);
+            }
+
+            20% {
+                transform: skew(-2deg);
+            }
+
+            40% {
+                transform: skew(0.5deg);
+            }
+
+            60% {
+                transform: skew(3deg);
+            }
+
+            80% {
+                transform: skew(-1deg);
+            }
+
+            100% {
+                transform: skew(0deg);
+            }
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translate(1px, 1px) rotate(0deg);
+            }
+
+            10% {
+                transform: translate(-1px, -2px) rotate(-1deg);
+            }
+
+            20% {
+                transform: translate(-3px, 0px) rotate(1deg);
+            }
+
+            30% {
+                transform: translate(3px, 2px) rotate(0deg);
+            }
+
+            40% {
+                transform: translate(1px, -1px) rotate(1deg);
+            }
+
+            50% {
+                transform: translate(-1px, 2px) rotate(-1deg);
+            }
+
+            60% {
+                transform: translate(-3px, 1px) rotate(0deg);
+            }
+
+            70% {
+                transform: translate(3px, 1px) rotate(-1deg);
+            }
+
+            80% {
+                transform: translate(-1px, -1px) rotate(1deg);
+            }
+
+            90% {
+                transform: translate(1px, 2px) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(1px, -2px) rotate(-1deg);
+            }
+        }
+
+       .wtf-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff00ff;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            cursor: pointer;
+            border-radius: 20px;
+            z-index: 1000;
+        }
+
+       .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px 30px 30px;
+            border: 3px solid #ff00ff;
+            color: #00ffff;
+            max-width: 500px;
+            white-space: pre-wrap;
+            z-index: 9999;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+       .popup input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+       .popup button {
+            margin-top: 20px;
+            background: #ff00ff;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            cursor: pointer;
+            border-radius: 20px;
+        }
+
+       .new-page-content {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #ff00ff;
+            animation: heartbeat 1s infinite;
+        }
+
+       .new-page {
+            animation: colorFlash 2s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes colorFlash {
+            0% {
+                background-color: rgba(255, 0, 0, 0.2);
+            }
+            25% {
+                background-color: rgba(0, 255, 0, 0.2);
+            }
+            50% {
+                background-color: rgba(0, 0, 255, 0.2);
+            }
+            75% {
+                background-color: rgba(255, 0, 255, 0.2);
+            }
+            100% {
+                background-color: rgba(255, 0, 0, 0.2);
+            }
+        }
+
+        /* 新增类：用于放大文字并添加重影效果 */
+       .new-page-content-ghost {
+            font-size: 2.5em; /* 放大文字 */
+            text-shadow: 3px 3px 5px rgba(255, 0, 255, 0.8), -3px -3px 5px rgba(255, 0, 255, 0.8); /* 添加重影效果 */
+        }
+
+        /* 广告弹窗样式 */
+       .ad-popup {
+            display: none;
+            position: fixed;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border: 2px solid #ff00ff;
+            color: #000;
+            max-width: 200px;
+            text-align: center;
+            z-index: 9999;
+            animation: fadeIn 0.5s, blink 1s infinite alternate;
+        }
+
+       .ad-popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes blink {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0.3;
+            }
+        }
+
+        /* 四角位置样式 */
+       .top-left {
+            top: 20px;
+            left: 20px;
+        }
+
+       .top-right {
+            top: 20px;
+            right: 20px;
+        }
+
+       .bottom-left {
+            bottom: 20px;
+            left: 20px;
+        }
+
+       .bottom-right {
+            bottom: 20px;
+            right: 20px;
+        }
+
+       .ad-popup img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 音频元素 -->
+    <audio id="backgroundMusic" src="image/imy.mp3"></audio>
+    <button id="playMusicButton" onclick="playMusic()">播放音乐</button>
+    <button id="pauseMusicButton" onclick="pauseMusic()">暂停音乐</button>
+
+    <!-- 左上角广告弹窗 -->
+    <div class="ad-popup top-left" id="adPopupTopLeft">
+        <span class="ad-popup-close" onclick="closeAdPopup('adPopupTopLeft')">&times;</span>
+        <img src="image/jfh.png" alt="image/jfh.png">
+        <h2>金鳳凰娱乐！</h2>
+        <p>捕魚 棋牌 體彩 電競！</p>
+        <a href="#" class="btn">註冊即888</a>
+    </div>
+
+    <!-- 右上角广告弹窗 -->
+    <div class="ad-popup top-right" id="adPopupTopRight">
+        <span class="ad-popup-close" onclick="closeAdPopup('adPopupTopRight')">&times;</span>
+        <img src="image/my.jpg" alt="image/my.jpg">
+        <h2>KiKi直播 任您調教 高清無碼</h2>
+        <p>DaDa.TV</p>
+        <a href="#" class="btn">點擊免費觀看</a>
+    </div>
+
+    <!-- 左下角广告弹窗 -->
+    <div class="ad-popup bottom-left" id="adPopupBottomLeft">
+        <span class="ad-popup-close" onclick="closeAdPopup('adPopupBottomLeft')">&times;</span>
+        <img src="image/qp.png" alt="image/qp.png">
+        <h2>澳門巴黎人千萬福利！</h2>
+        <p>美女荷官在線發牌</p>
+        <a href="#" class="btn">點擊開局</a>
+    </div>
+
+    <!-- 右下角广告弹窗 -->
+    <div class="ad-popup bottom-right" id="adPopupBottomRight">
+        <span class="ad-popup-close" onclick="closeAdPopup('adPopupBottomRight')">&times;</span>
+        <img src="image/jz.png" alt="image/jz.png">
+        <h2>Mozzie直播</h2>
+        <p>互動升級 直播pk</p>
+        <a href="#" class="btn">立即遙控</a>
+    </div>
+
+    <!-- 初始警告页 -->
+    <div class="warning-page" onclick="showAgeCheck()">
+        <div class="warning-text">
+            ⚠️ ⚠️ 本網站包含成人內容 ⚠️ ⚠️<br>
+            [點擊任意位置進入]
+        </div>
+    </div>
+
+    <!-- 年龄验证页 -->
+    <div id="ageCheck" class="age-check">
+        <button class="nav-button" onclick="goBackToWarning()">← 返回</button>
+        <div class="age-title">
+            此網站內容過於刺激<br>
+            未滿18歲請勿深夜點擊
+        </div>
+        <div class="age-buttons">
+            <button class="age-btn" style="border-color:#ff4444;color:#ff4444;" onclick="showCategoryPage()">是</button>
+            <button class="age-btn" style="border-color:#44ff44;color:#44ff44;" onclick="showCategoryPage()">Yes</button>
+            <button class="age-btn" style="border-color:#ff44ff;color:#ff44ff;" onclick="showCategoryPage()">求你了信我吧我真满18</button>
+        </div>
+    </div>
+
+    <!-- 分类选择页 -->
+    <div id="categoryPage" style="display: none;">
+        <button class="nav-button" onclick="goBackToAgeCheck()">← 返回</button>
+        <div class="category-grid">
+            <div class="category-item" id="domestic" onclick="loadRecipes('domestic')">
+                <img src="image/1.jpg" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                <div class="category-label">🇨🇳 國產精品</div>
+            </div>
+            <div class="category-item" id="japanKorea" onclick="loadRecipes('japanKorea')">
+                <img src="image/2.jpg" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                <div class="category-label">🗾 日韓專區</div>
+            </div>
+            <div class="category-item" id="europeAmerica" onclick="loadRecipes('europeAmerica')">
+                <img src="image/3.jpg" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                <div class="category-label">🎬 歐美大片</div>
+            </div>
+            <div class="category-item" id="exotic" onclick="loadRecipes('exotic')">
+                <img src="image/4.jpg" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                <div class="category-label">💥 刺激獵奇</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 食谱展示页 -->
+    <div id="content" style="display: none;">
+        <button class="nav-button" onclick="goBackToCategory()">← 返回</button>
+        <button class="wtf-button" onclick="goToTrickPage()">WTF?</button>
+        <div class="recipe-grid"></div>
+    </div>
+
+    <!-- 骗术页面 -->
+    <div id="trickPage" style="display: none;">
+        <button class="nav-button" onclick="goBackToContent()">← 返回</button>
+    </div>
+
+    <!-- 新页面 -->
+    <div id="newPage" class="new-page" style="display: none;">
+        <button class="nav-button" onclick="goBackToTrickPage()">← 返回</button>
+        <div class="new-page-content">
+            吞吐彈跳廣告<br>
+            插入荒誕食物<br>
+            頁面如高潮般抽搐<br>
+            404的呻吟窸窸窣窣<br>
+            食色性也<br>
+            媒體騙人<br>
+            藝術垃圾<br>
+            <br>                                                                                                                                                           此處應有慾望<br>
+            而不是驢肉火燒<br>           
+            感謝點擊！
+            <br>
+            <img src="image/ds.jpg" alt="image/ds.jpg">
+        </div>
+    </div>
+
+    <!-- 弹出框 -->
+    <div id="popup" class="popup">
+        <p>騙到你了，好色之徒，但你又能怎樣呢？</p>
+        <input type="text" id="inputField">
+        <button onclick="checkInput()">提交</button>
+    </div>
+
+    <script>
+        const audio = document.getElementById('backgroundMusic');
+
+        function playMusic() {
+            audio.play().catch(error => {
+                console.error('播放音乐时出错:', error);
+            });
+        }
+
+        function pauseMusic() {
+            audio.pause();
+        }
+
+        // 页面控制函数
+        function showAgeCheck() {
+            document.querySelector('.warning-page').style.display = 'none';
+            document.getElementById('ageCheck').style.display = 'block';
+        }
+
+        function showCategoryPage() {
+            document.getElementById('ageCheck').style.display = 'none';
+            document.getElementById('categoryPage').style.display = 'block';
+        }
+
+        function goBackToAgeCheck() {
+            document.getElementById('categoryPage').style.display = 'none';
+            document.getElementById('ageCheck').style.display = 'block';
+        }
+
+        function goBackToWarning() {
+            document.getElementById('ageCheck').style.display = 'none';
+            document.querySelector('.warning-page').style.display = 'block';
+        }
+
+        // 食谱数据
+        const recipesData = {
+            domestic: [
+                {
+                    title: "川味震动棒",
+                    thumbnail: "image/mptf.jpg",
+                    realImage: "image/mptf.jpg",
+                    hoverText: "點擊體驗麻辣速震",
+                    recipe: "【麻婆豆腐】\n1. 嫩豆腐入浴\n2. 牛肉沫自我燃燒\n3. 豆瓣醬插足共舞"
+                },
+                {
+                    title: "驢肉火燒",
+                    thumbnail: "image/dkbr.jpg",
+                    realImage: "image/dkbr.jpg",
+                    hoverText: "點擊感受肉慾暴擊",
+                    recipe: "【驢肉火燒】\n1. 肌肉紋理加密\n2. 高溫烙印液體\n3. 肉面相交"
+                },
+                {
+                    title: "北京烤鸭",
+                    thumbnail: "image/bjdc.jpg",
+                    realImage: "image/bjdc.jpg",
+                    hoverText: "點擊撩撥美鴨肌膚",
+                    recipe: "【北京烤鴨】\n1. 果木炙烤裊裊\n2. 輕撫片皮割肉\n3. 甜麵醬流下嘴角"
+                },
+                {
+                    title: "叉烧包",
+                    thumbnail: "image/csb.jpg",
+                    realImage: "image/csb.jpg",
+                    hoverText: "點擊輕舔濕潤蜜汁",
+                    recipe: "【叉燒包】\n1. 叉燒肉分尸\n2. 光滑麵團勃起\n3. 麵團擁抱叉燒 蒸桑拿"
+                }
+            ],
+            japanKorea: [
+                {
+                    title: "天妇罗の美学",
+                    thumbnail: "image/tfl.jpg",
+                    realImage: "image/tfl.jpg",
+                    hoverText: "點擊體驗束縛禁忌",
+                    recipe: "【天婦羅】\n1. 冰衣包裹陰謀\n2. 鮮肉油脂浸透\n3. 蒸汽朦朧勾引"
+                },
+                {
+                    title: "寿司の湿润哲学",
+                    thumbnail: "image/cs.jpg",
+                    realImage: "image/cs.jpg",
+                    hoverText: "點擊揭開濕潤面紗",
+                    recipe: "【刺身拼盤】\n1. 45度分離赤裸白肉\n2. 山葵與醬油磋磨\n3. 刺激上頭後溫吞"
+                },
+                {
+                    title: "泡菜启示录",
+                    thumbnail: "image/kimchi.jpg",
+                    realImage: "image/kimchi.jpg",
+                    hoverText: "點擊進入幽深密道",
+                    recipe: "【韓式泡菜】\n1. 鹽漬脫去偽裝\n2. 辣醬塗抹存存\n3. 石鋼禁慾PLAY"
+                },
+                {
+                    title: "部队火锅",
+                    thumbnail: "image/khpt.jpg",
+                    realImage: "image/khpt.jpg",
+                    hoverText: "點擊引爆熱量炸彈",
+                    recipe: "【部隊火鍋】\n1. 午餐肉焦香作床\n2. 芝士液噴湧而出\n3. 拉麵難纏"
+                }
+            ],
+            europeAmerica: [
+                {
+                    title: "西班牙冷汤",
+                    thumbnail: "image/ts.jpg",
+                    realImage: "image/ts.jpg",
+                    hoverText: "點擊發現冰火兩重天",
+                    recipe: "【西班牙冷湯】\n1. 番茄打碎彩椒\n2. 粗糲黃瓜冰凍\n3. 麵包屑沉浮紅湯"
+                },
+                {
+                    title: "法式深喉可颂",
+                    thumbnail: "image/cro.jpg",
+                    realImage: "image/cro.jpg",
+                    hoverText: "品嘗層疊深喉快樂",
+                    recipe: "【法式可頌】\n1. 69片黃油層疊\n2. 皮膚反復鞭撻出汁\n3. 咖啡液浸潤全部"
+                },
+                {
+                    title: "火山熔岩喷射",
+                    thumbnail: "image/cho.jpg",
+                    realImage: "image/cho.jpg",
+                    hoverText: "小心高溫噴射",
+                    recipe: "【熔岩巧克力】\n1. 黑巧危險沸騰\n2. 低粉長驅直入\n3. 香草冰淇淋化成一灘"
+                },
+                {
+                    title: "美式汉堡",
+                    thumbnail: "image/burger.jpg",
+                    realImage: "image/burger.jpg",
+                    hoverText: "點擊突破道德夾層",
+                    recipe: "【美式漢堡】\n1. 核心罪惡肉餅\n2. 芝士情慾流淌\n3. 面包虛偽假裝"
+                }
+            ],
+            exotic: [
+                {
+                    title: "鲱鱼罐头",
+                    thumbnail: "image/fish.jpg",
+                    realImage: "image/fish.jpg",
+                    hoverText: "點擊開啟潘多拉魔盒",
+                    recipe: "【鯡魚罐頭】\n1. 鹽漬時間禁果\n2. 黑暗儀式發酵\n3. 薄餅欲蓋彌彰"
+                },
+                {
+                    title: "皮蛋",
+                    thumbnail: "image/pd.jpg",
+                    realImage: "image/pd.jpg",
+                    hoverText: "點擊接受墮落詛咒",
+                    recipe: "【皮蛋】\n1. 堿水禁錮自由\n2. 視線剝奪好久\n3. 放置PLAY"
+                },
+                {
+                    title: "纳豆",
+                    thumbnail: "image/nd.jpg",
+                    realImage: "image/nd.jpg",
+                    hoverText: "點擊聆聽菌落耳鬢廝磨",
+                    recipe: "【納豆】\n1. 黃豆獻身濕軟\n2. 菌落編織春夢\n3. 拉絲"
+                },
+                {
+                    title: "蓝纹奶酪",
+                    thumbnail: "image/bc.jpg",
+                    realImage: "image/bc.jpg",
+                    hoverText: "點擊品味腐敗腥甜",
+                    recipe: "【藍紋奶酪】\n1. 青霉穿刺純真\n2. 腐敗綻放異香\n3. 啜飲肥白"
+                }
+            ]
+        };
+
+        // 加载食谱
+        function loadRecipes(category) {
+            const recipes = recipesData[category] || [];
+            const grid = document.querySelector('.recipe-grid');
+            grid.innerHTML = recipes.map(recipe => `
+                <div class="recipe-card" onclick="showRecipe('${recipe.recipe.replace(/\n/g, '\\n')}')">
+                    <img class="recipe-image" 
+                         src="${recipe.thumbnail}"
+                         onmouseover="this.src='${recipe.realImage}'"
+                         onmouseout="this.src='${recipe.thumbnail}'">
+                    <div style="padding:20px;text-align:center;">${recipe.hoverText}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('categoryPage').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function goBackToCategory() {
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('categoryPage').style.display = 'block';
+        }
+
+        // 显示食谱详情
+        function showRecipe(text) {
+            const [titlePart, ...steps] = text.split('\n');
+            const title = titlePart.replace(/【/g, '<span class="recipe-title">').replace(/】/g, '</span>');
+
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%,-50%);
+                background: rgba(0,0,0,0.95);
+                padding: 40px 30px 30px;
+                border: 3px solid #ff00ff;
+                color: #00ffff;
+                max-width: 500px;
+                white-space: pre-wrap;
+                z-index: 9999;
+                font-size: 1.1em;
+                line-height: 1.6;
+            `;
+
+            modal.innerHTML = `
+                <div style="position:relative;">
+                    <div style="margin-bottom:25px;border-bottom:2px solid #ff00ff;padding-bottom:10px;">
+                        ${title}
+                    </div>
+                    <pre style="margin:0;font-family:inherit;color:#fff;">${steps.join('\n')}</pre>
+                    <button onclick="this.parentElement.parentElement.remove()" 
+                            style="position:absolute;top:-25px;right:-25px;background:#ff00ff;border:none;padding:8px 15px;color:white;border-radius:50%;font-size:1.2em;">
+                        ⨯
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function goToTrickPage() {
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('trickPage').style.display = 'block';
+            document.getElementById('popup').style.display = 'block';
+        }
+
+        function goBackToContent() {
+            document.getElementById('trickPage').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        function checkInput() {
+            const input = document.getElementById('inputField').value;
+            if (input === 'FU') {
+                document.getElementById('trickPage').style.display = 'none';
+                document.getElementById('newPage').style.display = 'block';
+                document.getElementById('popup').style.display = 'none';
+                // 应用新类
+                document.querySelector('.new-page-content').classList.add('new-page-content-ghost');
+            } else {
+                alert('輸入錯誤，請輸入“FU”');
+            }
+        }
+
+        function goBackToTrickPage() {
+            document.getElementById('newPage').style.display = 'none';
+            document.getElementById('trickPage').style.display = 'block';
+            // 移除新类
+            document.querySelector('.new-page-content').classList.remove('new-page-content-ghost');
+        }
+
+        // 显示广告弹窗
+        function showAdPopup() {
+            const adPopups = ['adPopupTopLeft', 'adPopupTopRight', 'adPopupBottomLeft', 'adPopupBottomRight'];
+            adPopups.forEach(popupId => {
+                document.getElementById(popupId).style.display = 'block';
+            });
+        }
+
+        // 关闭广告弹窗
+        function closeAdPopup(popupId) {
+            document.getElementById(popupId).style.display = 'none';
+        }
+
+        // 页面加载完成后显示广告弹窗
+        window.onload = function() {
+            showAdPopup();
+        };
+    </script>
+</body>
+
+</html>
+    
